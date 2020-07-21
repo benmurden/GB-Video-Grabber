@@ -1,4 +1,4 @@
-# Giant Bomb Video Grabber
+# Giant Bomb Video Grabber 💣
 
 This simple Go application will use your [Giant Bomb API key](https://www.giantbomb.com/api/) to download all the latest [Giant Bomb](https://www.giantbomb.com) videos to watch offline at your leisure. Useful if you have a home media server and want to set up a cron job that grabs all the latest videos on a schedule, or just want an easy way to get a local copy of everything.
 
