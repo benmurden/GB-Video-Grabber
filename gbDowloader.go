@@ -45,6 +45,7 @@ func getInitialConfig() {
 	viper.SetDefault("videoDir", videoDirDefault)
 	viper.SetDefault("apiKey", "")
 	viper.SetDefault("maxConcurrency", concurrencyDefault)
+	viper.SetDefault("offset", 0)
 
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
@@ -61,6 +62,7 @@ func getInitialConfig() {
 	pflag.String("videodir", videoDirDefault, "Directory in which to store downloaded videos")
 	pflag.String("apikey", "", "Your GB API key")
 	pflag.Int("maxconcurrency", concurrencyDefault, "Maximum number of concurrent downloads")
+	pflag.Int("offset", 0, "Start from further back in history. E.g. --offset=100 will skip the most recent 100 videos and grab the next 100.")
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
 
@@ -76,6 +78,10 @@ func main() {
 	getInitialConfig()
 
 	url := fmt.Sprintf("https://www.giantbomb.com/api/videos/?api_key=%s&format=json&field_list=name,hd_url,high_url,publish_date", viper.GetString("apiKey"))
+
+	if viper.GetInt("offset") > 0 {
+		url += "&offset=" + viper.GetString("offset")
+	}
 
 	gbClient := http.Client{
 		Timeout: time.Second * 2,

@@ -23,6 +23,10 @@ Default: `./videos/`
 Maximum number of concurrent downloads.
 Default: `3`
 
+### `offset`
+Set this to grab videos from further back in history. The API only returns 100 results, so if you wanted the next page, you'd set this to 100.
+Default: `0`
+
 ## Command line options
 
 Any of the above options can be overridden at runtime using an invocation flag of the same name.
