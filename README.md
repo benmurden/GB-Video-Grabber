@@ -27,6 +27,13 @@ Default: `3`
 Set this to grab videos from further back in history. The API only returns 100 results, so if you wanted the next page, you'd set this to 100.
 Default: `0`
 
+### `filter`
+Provide a filter in the [GB API filter format](https://www.giantbomb.com/api/documentation/#toc-0-48).
+E.g.
+```yaml
+filter: video_show:39 # Mass Alex
+```
+
 ## Command line options
 
 Any of the above options can be overridden at runtime using an invocation flag of the same name.

@@ -46,6 +46,7 @@ func getInitialConfig() {
 	viper.SetDefault("apiKey", "")
 	viper.SetDefault("maxConcurrency", concurrencyDefault)
 	viper.SetDefault("offset", 0)
+	viper.SetDefault("filter", nil)
 
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
@@ -63,6 +64,7 @@ func getInitialConfig() {
 	pflag.String("apikey", "", "Your GB API key")
 	pflag.Int("maxconcurrency", concurrencyDefault, "Maximum number of concurrent downloads")
 	pflag.Int("offset", 0, "Start from further back in history. E.g. --offset=100 will skip the most recent 100 videos and grab the next 100.")
+	pflag.String("filter", "", "API filter to use. E.g. --filter=video_show:39")
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
 
@@ -81,6 +83,12 @@ func main() {
 
 	if viper.GetInt("offset") > 0 {
 		url += "&offset=" + viper.GetString("offset")
+	}
+
+	urlFilter := viper.GetString("filter")
+
+	if urlFilter != "" {
+		url += "&filter=" + urlFilter
 	}
 
 	gbClient := http.Client{
