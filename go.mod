@@ -1,4 +1,4 @@
-module GBDownloader
+module github.com/benmurden/GB-Video-Grabber
 
 go 1.14
 
