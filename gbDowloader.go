@@ -153,7 +153,7 @@ func videoWorker(ch chan Video, wg *sync.WaitGroup, p *mpb.Progress) {
 func getVideo(video Video, p *mpb.Progress) {
 	path := filepath.FromSlash(viper.GetString("videoDir"))
 
-	err := os.MkdirAll(path, os.ModeDir)
+	err := os.MkdirAll(path, os.ModeDir|0775)
 	if err != nil {
 		log.Fatal(err)
 	}
