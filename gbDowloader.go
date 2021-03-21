@@ -33,7 +33,7 @@ type Video struct {
 	HdURL       string `json:"hd_url"`
 }
 
-const ua string = "GB Video Grabber Go/0.1.1"
+const ua string = "GB Video Grabber Go/0.1.2"
 
 var (
 	re *regexp.Regexp = regexp.MustCompile(`[:?"]`)
