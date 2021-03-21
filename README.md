@@ -34,6 +34,9 @@ E.g.
 filter: video_show:39 # Mass Alex
 ```
 
+### `retries`
+Maximum number of times to retry the API.
+
 ## Command line options
 
 Any of the above options can be overridden at runtime using an invocation flag of the same name.
