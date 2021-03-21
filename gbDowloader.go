@@ -42,11 +42,14 @@ var (
 func getInitialConfig() {
 	videoDirDefault := "./videos/"
 	concurrencyDefault := 3
+	offsetDefault := 0
+	retryDefault := 3
 	viper.SetDefault("videoDir", videoDirDefault)
 	viper.SetDefault("apiKey", "")
 	viper.SetDefault("maxConcurrency", concurrencyDefault)
-	viper.SetDefault("offset", 0)
+	viper.SetDefault("offset", offsetDefault)
 	viper.SetDefault("filter", nil)
+	viper.SetDefault("retries", retryDefault)
 
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
@@ -63,8 +66,9 @@ func getInitialConfig() {
 	pflag.String("videodir", videoDirDefault, "Directory in which to store downloaded videos")
 	pflag.String("apikey", "", "Your GB API key")
 	pflag.Int("maxconcurrency", concurrencyDefault, "Maximum number of concurrent downloads")
-	pflag.Int("offset", 0, "Start from further back in history. E.g. --offset=100 will skip the most recent 100 videos and grab the next 100.")
+	pflag.Int("offset", offsetDefault, "Start from further back in history. E.g. --offset=100 will skip the most recent 100 videos and grab the next 100.")
 	pflag.String("filter", "", "API filter to use. E.g. --filter=video_show:39")
+	pflag.Int("retries", retryDefault, "Number of times to retry the API")
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
 
@@ -101,10 +105,19 @@ func main() {
 	}
 
 	req.Header.Set("User-Agent", ua)
+	maxRetries := viper.GetInt("retries")
+	retries := 0
+	var res *http.Response
 
-	res, getErr := gbClient.Do(req)
-	if getErr != nil {
-		log.Fatal(getErr)
+	for retries <= maxRetries {
+		var getErr error
+		res, getErr = gbClient.Do(req)
+		if getErr != nil {
+			log.Println(getErr)
+			retries += 1
+		} else {
+			break
+		}
 	}
 
 	body, readErr := ioutil.ReadAll(res.Body)
