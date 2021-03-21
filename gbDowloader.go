@@ -146,8 +146,13 @@ func main() {
 		go videoWorker(ch, &wg, p)
 	}
 
+	set := make(map[string]struct{})
+
 	for _, video := range responseObject.Results {
-		ch <- video
+		if _, ok := set[video.Name]; !ok {
+			ch <- video
+			set[video.Name] = struct{}{}
+		}
 	}
 
 	close(ch)
