@@ -72,7 +72,7 @@ func getInitialConfig() {
 	pflag.Int("offset", offsetDefault, "Start from further back in history. E.g. --offset=100 will skip the most recent 100 videos and grab the next 100.")
 	pflag.String("filter", "", "API filter to use. E.g. --filter=video_show:39")
 	pflag.Int("retries", retryDefault, "Number of times to retry the API")
-	pflag.String("quality", "", "Video quality to request. E.g. --quality=2 for HD, 1 for High and 0 for Low")
+	pflag.Int("quality", qualityDefault, "Video quality to request. E.g. --quality=2 for HD, 1 for High and 0 for Low")
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
 
