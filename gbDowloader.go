@@ -29,6 +29,7 @@ type Response struct {
 type Video struct {
 	Name        string
 	PublishDate string `json:"publish_date"`
+	LowURL      string `json:"low_url"`
 	HighURL     string `json:"high_url"`
 	HdURL       string `json:"hd_url"`
 }
@@ -44,12 +45,14 @@ func getInitialConfig() {
 	concurrencyDefault := 3
 	offsetDefault := 0
 	retryDefault := 3
+	qualityDefault := 2
 	viper.SetDefault("videoDir", videoDirDefault)
 	viper.SetDefault("apiKey", "")
 	viper.SetDefault("maxConcurrency", concurrencyDefault)
 	viper.SetDefault("offset", offsetDefault)
 	viper.SetDefault("filter", nil)
 	viper.SetDefault("retries", retryDefault)
+	viper.SetDefault("quality", qualityDefault)
 
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
@@ -69,6 +72,7 @@ func getInitialConfig() {
 	pflag.Int("offset", offsetDefault, "Start from further back in history. E.g. --offset=100 will skip the most recent 100 videos and grab the next 100.")
 	pflag.String("filter", "", "API filter to use. E.g. --filter=video_show:39")
 	pflag.Int("retries", retryDefault, "Number of times to retry the API")
+	pflag.String("quality", "", "Video quality to request. E.g. --quality=2 for HD, 1 for High and 0 for Low")
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
 
@@ -83,7 +87,7 @@ func getInitialConfig() {
 func main() {
 	getInitialConfig()
 
-	url := fmt.Sprintf("https://www.giantbomb.com/api/videos/?api_key=%s&format=json&field_list=name,hd_url,high_url,publish_date", viper.GetString("apiKey"))
+	url := fmt.Sprintf("https://www.giantbomb.com/api/videos/?api_key=%s&format=json&field_list=name,hd_url,high_url,low_url,publish_date", viper.GetString("apiKey"))
 
 	if viper.GetInt("offset") > 0 {
 		url += "&offset=" + viper.GetString("offset")
@@ -182,11 +186,21 @@ func getVideo(video Video, p *mpb.Progress) {
 	}
 	filename := fmt.Sprintf("%s %s.mp4", date.Format("200601021504"), strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(re.ReplaceAllString(video.Name, ""), "/", "-"), "|", "-"), "@", "at"))
 	fullPath := path + filename
-	hdURL := video.HdURL + "?api_key=" + viper.GetString("apiKey")
+	videoURL := "?api_key=" + viper.GetString("apiKey")
+	switch viper.GetInt("quality") {
+		case 0:
+			videoURL = video.LowURL + videoURL
+		case 1:
+			videoURL = video.HighURL + videoURL
+		case 2:
+			videoURL = video.HdURL + videoURL
+		default:
+			videoURL = video.HdURL + videoURL
+	}
 
 	dlClient := http.Client{}
 
-	headResp, err := http.Head(hdURL)
+	headResp, err := http.Head(videoURL)
 	if err != nil {
 		panic(err)
 	}
@@ -230,7 +244,7 @@ func getVideo(video Video, p *mpb.Progress) {
 
 	bar.SetCurrent(fileSize)
 
-	req, err := http.NewRequest(http.MethodGet, hdURL, nil)
+	req, err := http.NewRequest(http.MethodGet, videoURL, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
